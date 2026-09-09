@@ -408,6 +408,114 @@
   @media (prefers-reduced-motion: reduce) { .flare { filter:blur(18px); } }
   @media (max-width: 760px) { .flare { opacity:.55; } }
 </style>
+<style id="clutter-tax-css">
+  /* ============================================================
+     THE CLUTTER TAX — calculator section. Everything is scoped
+     under #ct and cannot touch the sheets above. Safe to lift out
+     wholesale: this <style>, the <section id="ct">, and the
+     clutter-tax <script> are the only three pieces.
+     ============================================================ */
+#ct .ct-intro { padding-bottom:0; }
+  #ct .ct-intro h2 { font-size:44px; max-width:16ch; margin-bottom:0; }
+  #ct .ct-intro p.lead { margin-top:18px; }
+  #ct .ct-intro p.lead b { font-weight:800; }
+
+  #ct .ct-cols { display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:56px; align-items:start; padding:52px 0 0; }
+  @media (max-width: 900px) { #ct .ct-cols { grid-template-columns:1fr; gap:38px; } }
+
+  /* --- input panel --- */
+  #ct .ct-panel { background:#F7F5F1; border-top:6px solid; border-image:linear-gradient(90deg, var(--jk-orange), var(--jk-yellow)) 1;
+    padding:28px 26px 26px; position:sticky; top:24px; }
+  @media (max-width: 900px) { #ct .ct-panel { position:static; } }
+  #ct .ct-panel h2 { font-size:13px; font-weight:800; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px; }
+  #ct .ct-hint { font-size:14px; color:#5A6272; margin-bottom:26px; line-height:1.45; }
+  #ct .ct-fields { display:flex; flex-direction:column; gap:22px; }
+  #ct .ct-field label { display:block; font-size:14.5px; font-weight:600; margin-bottom:7px; line-height:1.35; }
+  #ct .ct-field .ct-sub { display:block; font-weight:400; color:#5A6272; font-size:13.5px; margin-top:2px; }
+  #ct .ct-field input[type=number] { width:100%; padding:11px 12px; font:inherit; font-size:17px; font-weight:800;
+    font-variant-numeric:tabular-nums; background:#FFFFFF; color:#10182A; border:2px solid #E9E6E0; }
+  #ct .ct-field input[type=number]:focus { border-color:#10182A; }
+  #ct .ct-field input[type=range] { width:100%; accent-color:#F45209; margin-top:10px; }
+  #ct .ct-rangerow { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  #ct .ct-rangerow .ct-val { font-weight:800; font-size:20px; font-variant-numeric:tabular-nums; }
+  #ct input:focus-visible, #ct button:focus-visible, #ct summary:focus-visible, #ct a:focus-visible { outline:3px solid #F45209; outline-offset:3px; }
+
+  #ct details.ct-assump { margin-top:26px; border-top:3px solid #10182A; padding-top:16px; }
+  #ct details.ct-assump summary { list-style:none; cursor:pointer; font-size:13px; font-weight:800; letter-spacing:3px;
+    text-transform:uppercase; color:#5A6272; display:flex; justify-content:space-between; align-items:center; gap:10px; transition:color .18s ease; }
+  #ct details.ct-assump summary:hover { color:#F45209; }
+  #ct details.ct-assump summary::-webkit-details-marker { display:none; }
+  #ct details.ct-assump summary::after { content:""; width:11px; height:11px; flex:0 0 auto;
+    border-right:3px solid #F45209; border-bottom:3px solid #F45209; transform:rotate(45deg); margin-top:-4px; transition:transform .28s var(--eo); }
+  #ct details.ct-assump[open] summary::after { transform:rotate(-135deg); margin-top:2px; }
+  #ct .ct-note { font-size:13.5px; color:#5A6272; margin:16px 0 14px; line-height:1.5; }
+  #ct .ct-arow { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:8px 0; border-bottom:1px solid #E9E6E0; }
+  #ct .ct-arow:last-of-type { border-bottom:none; }
+  #ct .ct-arow span { font-size:13.5px; line-height:1.35; color:#3A4152; }
+  #ct .ct-arow input { width:76px; flex:0 0 auto; padding:6px 8px; font:inherit; font-size:14px; font-weight:800;
+    font-variant-numeric:tabular-nums; text-align:right; background:#FFFFFF; color:#10182A; border:2px solid #E9E6E0; }
+  #ct .ct-reset { margin-top:18px; background:none; border:2px solid #E9E6E0; color:#5A6272; font:inherit; font-size:13px;
+    font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:9px 14px; cursor:pointer; transition:border-color .18s ease, color .18s ease; }
+  #ct .ct-reset:hover { color:#10182A; border-color:#10182A; }
+
+  /* --- results --- */
+  #ct .ct-headline { border-bottom:3px solid #10182A; padding-bottom:30px; }
+  #ct .ct-figure { font-size:clamp(56px, 9vw, 92px); font-weight:800; line-height:.95; letter-spacing:-.03em;
+    color:#F45209; font-variant-numeric:tabular-nums; margin-top:6px; }
+  #ct .ct-figure-sub { margin-top:16px; font-size:19px; color:#3A4152; max-width:46ch; line-height:1.4; }
+  #ct .ct-figure-sub b { font-weight:800; color:#10182A; }
+
+  #ct .ct-tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px,1fr)); gap:0; margin-top:0; }
+  #ct .ct-tile { padding:26px 22px 26px 0; border-bottom:1px solid #E9E6E0; }
+  #ct .ct-tile + .ct-tile { padding-left:22px; border-left:1px solid #E9E6E0; }
+  @media (max-width: 620px) { #ct .ct-tile + .ct-tile { padding-left:0; border-left:none; } }
+  #ct .ct-tile .ct-k { font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1.05; }
+  #ct .ct-tile .ct-l { font-size:14px; color:#5A6272; margin-top:5px; line-height:1.4; }
+
+  #ct .ct-block { margin-top:52px; }
+  #ct .ct-block h3 { font-size:13px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:#F45209; margin-bottom:8px; }
+  #ct .ct-blurb { font-size:15px; color:#5A6272; margin-bottom:30px; max-width:62ch; line-height:1.5; }
+  #ct .ct-blurb b { color:#10182A; font-weight:800; }
+
+  #ct .ct-chart { display:flex; flex-direction:column; gap:26px; }
+  #ct .ct-top { display:flex; justify-content:space-between; align-items:baseline; gap:18px; margin-bottom:9px; }
+  #ct .ct-name { font-weight:800; font-size:18px; line-height:1.25; }
+  #ct .ct-amt { font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #ct .ct-track { height:16px; background:#E9E6E0; }
+  /* Solid fill, not the button gradient: a gradient scaled to each bar's own
+     width makes colour vary with length, which encodes rank in hue and makes
+     the bars harder to compare. One measure, one colour. */
+  #ct .ct-fill { height:100%; background:var(--jk-orange); min-width:3px;
+    transition:width .35s var(--eo); }
+  #ct .ct-desc { font-size:14.5px; color:#5A6272; margin-top:9px; line-height:1.45; max-width:64ch; }
+  #ct .ct-axis { display:flex; justify-content:space-between; font-size:13px; color:#5A6272; font-variant-numeric:tabular-nums;
+    border-top:1px solid #E9E6E0; padding-top:9px; margin-top:22px; }
+  @media (prefers-reduced-motion: reduce) { #ct .ct-fill { transition:none; } }
+
+  #ct .ct-tablewrap { overflow-x:auto; }
+  #ct table { width:100%; border-collapse:collapse; font-size:15px; }
+  #ct th, #ct td { text-align:right; padding:12px 14px; border-bottom:1px solid #E9E6E0; }
+  #ct th:first-child, #ct td:first-child { text-align:left; padding-left:0; }
+  #ct th { font-weight:800; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#5A6272; }
+  #ct td { font-variant-numeric:tabular-nums; }
+  #ct tfoot td { font-weight:800; border-bottom:none; border-top:3px solid #10182A; }
+
+  #ct .ct-fine { font-size:14px; color:#5A6272; line-height:1.6; max-width:70ch; margin-top:16px; }
+  #ct .ct-fine b { color:#3A4152; font-weight:800; }
+  #ct .ct-fine + .ct-fine { margin-top:12px; }
+
+  /* --- section close (light ground: the homepage's navy CTA already ends the page) --- */
+  #ct .ct-close { margin-top:64px; padding-top:34px; border-top:6px solid;
+    border-image:linear-gradient(90deg, var(--jk-orange), var(--jk-yellow)) 1; }
+  #ct .ct-close-line { font-size:34px; font-weight:800; line-height:1.15; letter-spacing:-.01em; max-width:20ch; }
+  #ct .ct-close-line span { color:#F45209; font-variant-numeric:tabular-nums; }
+  #ct .ct-close-body { font-size:17px; color:#3A4152; max-width:60ch; margin-top:16px; line-height:1.55; }
+  #ct .ct-actions { margin-top:28px; }
+  #ct .ct-actions .btn { margin:0 14px 12px 0; }
+  #ct .ct-copied { color:#F45209; font-weight:800; font-size:14px; margin-top:10px; min-height:1.3em; }
+  #ct .ct-privacy { color:#5A6272; font-size:13.5px; margin-top:8px; max-width:62ch; line-height:1.55; }
+  @media (max-width: 620px) { #ct .ct-close-line { font-size:27px; } }
+</style>
 </head>
 <body>
 
@@ -496,6 +604,137 @@
     </div>
   </dialog>
 </div></section>
+
+<!-- ================= THE CLUTTER TAX ================= -->
+<section id="ct">
+  <div class="wrap">
+    <div class="ct-intro">
+      <div class="kicker">The Cost of Inaction</div>
+      <h2>What not knowing costs you every year.</h2>
+      <p class="lead">Your company already produced every answer it needs. It said them out loud &mdash; in email, on calls, in the hallway &mdash; and then threw them away. <b>This is the bill for buying them back.</b></p>
+    </div>
+
+    <!-- data-anim + is-in opts this out of the scroll-reveal sweep: a tool must stay visible -->
+    <div class="ct-cols is-in" data-anim>
+<!-- ============ INPUTS ============ -->
+        <form class="ct-panel" id="ctPanel" autocomplete="off">
+          <h2>Your company</h2>
+          <p class="ct-hint">Pre-filled with a round 100-person company at $100k loaded. These are example figures &mdash; replace them with yours.</p>
+
+          <div class="ct-fields">
+            <div class="ct-field">
+              <label for="headcount">Employees</label>
+              <input type="number" id="headcount" min="10" max="20000" step="10" value="100">
+            </div>
+
+            <div class="ct-field">
+              <label for="salary">Average fully-loaded salary ($)
+                <span class="ct-sub">Salary plus benefits, taxes and overhead</span>
+              </label>
+              <input type="number" id="salary" min="30000" max="500000" step="5000" value="100000">
+            </div>
+
+            <div class="ct-field">
+              <div class="ct-rangerow">
+                <label for="syncHours" style="margin:0">Hours per person per week<br>in recurring status meetings</label>
+                <span class="ct-val" id="syncHoursV">4.0</span>
+              </div>
+              <input type="range" id="syncHours" min="0" max="15" step="0.5" value="4">
+            </div>
+
+            <div class="ct-field">
+              <div class="ct-rangerow">
+                <label for="statusShare" style="margin:0">Share of that time spent<br>conveying what already happened</label>
+                <span class="ct-val" id="statusShareV">40%</span>
+              </div>
+              <input type="range" id="statusShare" min="0" max="100" step="5" value="40">
+            </div>
+          </div>
+
+          <details class="ct-assump">
+            <summary>Assumptions</summary>
+            <p class="ct-note">These are starting assumptions, not research findings. They are deliberately conservative. Change any of them &mdash; the number updates, and the arithmetic stays visible.</p>
+
+            <div class="ct-arow"><span>Working weeks per year</span><input type="number" id="weeks" min="1" max="52" step="1" value="46"></div>
+            <div class="ct-arow"><span>Decisions re-opened per 100 people, per month</span><input type="number" id="relitPer100" min="0" max="50" step="1" value="3"></div>
+            <div class="ct-arow"><span>People pulled into each re-opened decision</span><input type="number" id="relitPeople" min="1" max="30" step="1" value="4"></div>
+            <div class="ct-arow"><span>Hours each re-opened decision consumes</span><input type="number" id="relitHours" min="0" max="40" step="0.5" value="2"></div>
+            <div class="ct-arow"><span>Commitments dropped per 100 people, per month</span><input type="number" id="droppedPer100" min="0" max="100" step="1" value="8"></div>
+            <div class="ct-arow"><span>Hours to catch and recover each one</span><input type="number" id="droppedHours" min="0" max="40" step="0.5" value="3"></div>
+            <div class="ct-arow"><span>Annual voluntary turnover (%)</span><input type="number" id="turnover" min="0" max="60" step="1" value="13"></div>
+            <div class="ct-arow"><span>Weeks a replacement spends rebuilding lost context</span><input type="number" id="rampWeeks" min="0" max="52" step="1" value="4"></div>
+            <div class="ct-arow"><span>Productivity lost during those weeks (%)</span><input type="number" id="rampLoss" min="0" max="100" step="5" value="50"></div>
+
+            <button type="button" class="ct-reset" id="ctReset">Reset to defaults</button>
+          </details>
+        </form>
+
+        <!-- ============ RESULTS ============ -->
+        <main>
+          <div class="ct-headline">
+            <div class="kicker">Annual clutter tax</div>
+            <div class="ct-figure" id="ctTotal">$431,538</div>
+            <p class="ct-figure-sub">That is <b id="ctFte">4.3</b> full-time people whose entire year goes to re-synchronizing a company that has no shared record of itself.</p>
+          </div>
+
+          <div class="ct-tiles">
+            <div class="ct-tile">
+              <div class="ct-k" id="ctWeekly">$9,381</div>
+              <div class="ct-l">Per week, while nothing changes</div>
+            </div>
+            <div class="ct-tile">
+              <div class="ct-k" id="ctHours">8,976</div>
+              <div class="ct-l">Person-hours per year</div>
+            </div>
+            <div class="ct-tile">
+              <div class="ct-k" id="ctPerhead">$4,315</div>
+              <div class="ct-l">Per employee, per year</div>
+            </div>
+          </div>
+
+          <div class="ct-block">
+            <h3>Where it goes</h3>
+            <p class="ct-blurb">Four line items. The first is the one everybody already feels; the other three are the ones that never show up on a calendar.</p>
+            <div class="ct-chart" id="ctChart"></div>
+            <div class="ct-axis"><span>$0</span><span id="ctAxisMax">$353,846</span></div>
+          </div>
+
+          <div class="ct-block">
+            <h3>The arithmetic</h3>
+            <p class="ct-blurb">Nothing here is hidden. Every figure below is your inputs multiplied out at a loaded rate of <b id="ctRate">$48.08</b> per hour.</p>
+            <div class="ct-tablewrap">
+              <table>
+                <thead>
+                  <tr><th scope="col">Line item</th><th scope="col">Hours / yr</th><th scope="col">Cost / yr</th><th scope="col">Share</th></tr>
+                </thead>
+                <tbody id="ctTbody"></tbody>
+                <tfoot>
+                  <tr><td>Total</td><td id="ctTHours"></td><td id="ctTCost"></td><td>100%</td></tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="ct-block">
+            <h3>How to read this</h3>
+            <p class="ct-fine">This is a model, not a measurement. It multiplies out assumptions you can see and change; it does not observe your company. Treat the total as the size of the question, not the answer &mdash; the honest version of this number comes from a pilot on your own communication.</p>
+            <p class="ct-fine"><b>Deliberately excluded:</b> decisions delayed waiting for information, opportunity cost of work not started, and customer-facing consequences of internal blind spots. All real, none of them defensible to estimate from headcount.</p>
+          </div>
+        </main>
+    </div>
+
+    <div class="ct-close">
+      <p class="ct-close-line">Every week you wait costs <span id="ctWeeklyAsk">$9,381</span>.</p>
+      <p class="ct-close-body">Junkola captures the communication you already have &mdash; email, chat, Zoom, Meet, and the meetings that never get written down &mdash; and turns it into tracked, assigned work. Status stops being something people report and becomes a residue of work already happening.</p>
+      <div class="ct-actions">
+        <a class="btn" id="ctMailto" href="mailto:hello@junkola.ai">SEND THESE NUMBERS TO US</a>
+        <button class="btn ghost" type="button" id="ctCopy">COPY THE BREAKDOWN</button>
+      </div>
+      <p class="ct-copied" id="ctCopied" role="status" aria-live="polite"></p>
+      <p class="ct-privacy">Nothing you type here is stored, sent, or tracked &mdash; the whole calculation runs in your browser. The buttons above just package your own numbers into an email or your clipboard.</p>
+    </div>
+  </div>
+</section>
 
 <section class="reveal" aria-label="How Junkola works: problem, method, solution">
   <div class="reveal-media" aria-hidden="true">
@@ -1080,5 +1319,164 @@
   scrollDirty = true; schedule();
 })();
 </script>
+<script id="clutter-tax-js">
+(function(){
+  "use strict";
+
+  /* ---------- the calculator ---------- */
+  var DEFAULTS = {
+    headcount:100, salary:100000, syncHours:4, statusShare:40,
+    weeks:46, relitPer100:3, relitPeople:4, relitHours:2,
+    droppedPer100:8, droppedHours:3, turnover:13, rampWeeks:4, rampLoss:50
+  };
+  var KEYS = Object.keys(DEFAULTS);
+  var HOURS_PER_FTE = 2080, HOURS_PER_WEEK = 40;
+
+  var usd0 = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  var usd2 = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+  var num0 = new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
+  var num1 = new Intl.NumberFormat("en-US",{minimumFractionDigits:1,maximumFractionDigits:1});
+
+  function $(id){ return document.getElementById(id); }
+
+  function readState(){
+    var s = {};
+    KEYS.forEach(function(k){
+      var el = $(k), v = parseFloat(el.value);
+      if (!isFinite(v) || v < 0) v = DEFAULTS[k];
+      var min = parseFloat(el.min), max = parseFloat(el.max);
+      if (isFinite(min) && v < min) v = min;
+      if (isFinite(max) && v > max) v = max;
+      s[k] = v;
+    });
+    return s;
+  }
+
+  function compute(s){
+    var hourly = s.salary / HOURS_PER_FTE;
+    var hundreds = s.headcount / 100;
+
+    var statusHrs  = s.headcount * s.syncHours * s.weeks * (s.statusShare/100);
+    var relitHrs   = hundreds * s.relitPer100 * s.relitPeople * s.relitHours * 12;
+    var droppedHrs = hundreds * s.droppedPer100 * s.droppedHours * 12;
+    var rampHrs    = s.headcount * (s.turnover/100) * s.rampWeeks * (s.rampLoss/100) * HOURS_PER_WEEK;
+
+    var items = [
+      { name:"The status tax", hours:statusHrs,
+        desc:"Recurring meetings whose only job is to tell people what already happened." },
+      { name:"Context lost to turnover", hours:rampHrs,
+        desc:"Every departure takes undocumented context with it. This is the share of ramp-up spent rebuilding what was never written down." },
+      { name:"Decisions re-opened", hours:relitHrs,
+        desc:"A call was made, nobody could find it, so the room argues it again." },
+      { name:"Commitments that evaporated", hours:droppedHrs,
+        desc:"“I’ll handle it” landed nowhere, and someone spends hours discovering that weeks later." }
+    ];
+    items.forEach(function(it){ it.cost = it.hours * hourly; });
+    items.sort(function(a,b){ return b.hours - a.hours; });
+
+    var totalHrs = items.reduce(function(t,i){ return t + i.hours; }, 0);
+    return {
+      items:items, hourly:hourly, totalHrs:totalHrs,
+      totalCost: totalHrs * hourly,
+      fte: totalHrs / HOURS_PER_FTE,
+      weekly: s.weeks > 0 ? (totalHrs * hourly) / s.weeks : 0,
+      perHead: s.headcount > 0 ? (totalHrs * hourly) / s.headcount : 0
+    };
+  }
+
+  function render(){
+    var s = readState(), r = compute(s);
+
+    $("syncHoursV").textContent = num1.format(s.syncHours);
+    $("statusShareV").textContent = s.statusShare + "%";
+
+    $("ctTotal").textContent     = usd0.format(r.totalCost);
+    $("ctFte").textContent       = num1.format(r.fte);
+    $("ctWeekly").textContent    = usd0.format(r.weekly);
+    $("ctWeeklyAsk").textContent = usd0.format(r.weekly);
+    $("ctHours").textContent     = num0.format(r.totalHrs);
+    $("ctPerhead").textContent   = usd0.format(r.perHead);
+    $("ctRate").textContent      = usd2.format(r.hourly);
+
+    var max = r.items.length ? r.items[0].cost : 0;
+    $("ctAxisMax").textContent = usd0.format(max);
+
+    var chart = $("ctChart");
+    chart.textContent = "";
+    r.items.forEach(function(it){
+      var row = document.createElement("div");
+      var top = document.createElement("div"); top.className = "ct-top";
+      var nm  = document.createElement("span"); nm.className = "ct-name"; nm.textContent = it.name;
+      var am  = document.createElement("span"); am.className = "ct-amt"; am.textContent = usd0.format(it.cost);
+      top.appendChild(nm); top.appendChild(am);
+      var track = document.createElement("div"); track.className = "ct-track";
+      var fill  = document.createElement("div"); fill.className = "ct-fill";
+      fill.style.width = (max > 0 ? (it.cost / max) * 100 : 0) + "%";
+      track.appendChild(fill);
+      var d = document.createElement("div"); d.className = "ct-desc"; d.textContent = it.desc;
+      row.appendChild(top); row.appendChild(track); row.appendChild(d);
+      chart.appendChild(row);
+    });
+
+    var tb = $("ctTbody"); tb.textContent = "";
+    r.items.forEach(function(it){
+      var tr = document.createElement("tr");
+      [ it.name, num0.format(it.hours), usd0.format(it.cost),
+        (r.totalHrs > 0 ? Math.round(it.hours / r.totalHrs * 100) : 0) + "%"
+      ].forEach(function(v){
+        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    $("ctTHours").textContent = num0.format(r.totalHrs);
+    $("ctTCost").textContent  = usd0.format(r.totalCost);
+
+    var lines = [
+      "Junkola — annual clutter tax",
+      "",
+      "Company: " + num0.format(s.headcount) + " employees at " + usd0.format(s.salary) + " fully loaded",
+      "Status meetings: " + num1.format(s.syncHours) + " hrs/person/week, " + s.statusShare + "% of it pure status",
+      "",
+      "ANNUAL COST: " + usd0.format(r.totalCost),
+      "Per week: " + usd0.format(r.weekly),
+      "Person-hours: " + num0.format(r.totalHrs) + " (" + num1.format(r.fte) + " full-time equivalents)",
+      ""
+    ];
+    r.items.forEach(function(it){
+      lines.push("  " + it.name + ": " + usd0.format(it.cost) + "  (" + num0.format(it.hours) + " hrs)");
+    });
+    lines.push("", "Modelled at " + usd2.format(r.hourly) + "/hr loaded, " + num0.format(s.weeks) + " working weeks.",
+                   "Run your own numbers: https://junkola.ai/clutter-tax.html");
+    var summary = lines.join("\n");
+
+    $("ctCopy").dataset.summary = summary;
+    $("ctMailto").href = "mailto:hello@junkola.ai"
+      + "?subject=" + encodeURIComponent("Clutter tax: " + usd0.format(r.totalCost) + "/yr")
+      + "&body=" + encodeURIComponent(summary + "\n\nI'd like to talk about what a pilot would look like.\n\n");
+  }
+
+  $("ctPanel").addEventListener("input", render);
+  $("ctPanel").addEventListener("submit", function(e){ e.preventDefault(); });
+
+  $("ctReset").addEventListener("click", function(){
+    KEYS.forEach(function(k){ $(k).value = DEFAULTS[k]; });
+    render();
+  });
+
+  $("ctCopy").addEventListener("click", function(){
+    var text = this.dataset.summary || "";
+    var done = function(ok){
+      $("ctCopied").textContent = ok ? "Copied to your clipboard." : "Couldn’t copy — select the table above instead.";
+      window.setTimeout(function(){ $("ctCopied").textContent = ""; }, 4000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+    } else { done(false); }
+  });
+
+  render();
+})();
+</script>
+
 </body>
 </html>
