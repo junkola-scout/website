@@ -8,7 +8,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="junkola-logo.webp" fetchpriority="high">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;800&display=swap" rel="stylesheet">
-<script>document.documentElement.className+=" js";</script>
+<script>
+document.documentElement.className+=" js";
+/* Intro film: opens on page load, and holds the curtain + hero animation until it is closed.
+   Skipped for deep links (#section), ?intro=0, and browsers without <dialog>.
+   ?intro=1 forces it. To show it only once per browser session, set ONCE_PER_SESSION to true. */
+(function(){ try {
+  var ONCE_PER_SESSION = false, q = location.search, seen = false;
+  if (ONCE_PER_SESSION) { try { seen = sessionStorage.getItem('jk-intro') === '1'; } catch(e){} }
+  var show = !/[?&]intro=0\b/.test(q) && (/[?&]intro=1\b/.test(q) || (!location.hash && !seen)) && typeof HTMLDialogElement === 'function';
+  if (show) document.documentElement.className += ' intro-wait';
+} catch(e){} })();
+</script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Libre Franklin', Arial, sans-serif; color:#10182A; background:#FFFFFF; font-size:17px; line-height:1.55; }
@@ -551,6 +562,39 @@
   }
 ]
 </script>
+<style id="intro-css">
+  /* ===== Intro film modal: full-screen, solid navy (same navy as the curtain behind it) ===== */
+  html.intro-wait .curtain, html.intro-wait .curtain-bar { animation-play-state:paused; }  /* curtain waits for the film to close */
+
+  .introdlg { position:fixed; inset:0; width:100%; height:100vh; height:100dvh; max-width:none; max-height:none;
+    margin:0; padding:0; border:0; background:#10182A; color:#F5F3EE; overflow-y:auto; }
+  .introdlg[open] { display:flex; flex-direction:column; }
+  .introdlg::backdrop { background:#10182A; }
+  /* same retro grid + pulsing dots + corner flares as the closing CTA band; fixed so it stays put while the dialog scrolls */
+  .intro-bg { position:fixed; }
+  .intro-bg .vpx-layer { top:0; bottom:0; will-change:auto; }
+  .intro-stripe, .intro-head, .intro-body { position:relative; z-index:2; }
+  .intro-stripe { flex:0 0 auto; height:5px;
+    background:repeating-linear-gradient(90deg, var(--jk-yellow) 0 120px, var(--jk-orange) 120px 240px, var(--jk-red) 240px 300px, var(--jk-yellow) 300px 420px, var(--jk-orange) 420px 540px); }
+  .intro-head { flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 28px 0; }
+  .intro-head img { height:78px; width:auto; display:block; }
+  .intro-close { flex:0 0 auto; min-height:58px; padding:0 28px; border:0; cursor:pointer; font:inherit; font-weight:800; font-size:16px;
+    letter-spacing:1.5px; color:#10182A; background:linear-gradient(90deg, var(--jk-orange) 0%, var(--jk-yellow) 100%);
+    transition:transform .18s var(--eo), filter .18s ease; }
+  .intro-close:hover { transform:scale(1.04); filter:brightness(1.07); }
+  .intro-close:focus-visible { outline:3px solid #FFFFFF; outline-offset:3px; }
+  .intro-body { flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 24px 44px; }
+  .intro-body .kicker { align-self:center; margin-bottom:20px; }
+  .intro-frame { width:min(1040px, 100%, max(320px, calc((100vh - 250px) * 1.7778)));
+                 width:min(1040px, 100%, max(320px, calc((100dvh - 250px) * 1.7778))); }
+  @media (max-width: 620px) {
+    .intro-head { padding:16px 16px 0; }
+    .intro-head img { height:60px; }
+    .intro-close { min-height:52px; padding:0 22px; font-size:15px; }
+    .intro-body { padding:8px 16px 32px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .intro-close { transition:none; } }
+</style>
 <style id="mobile-motion-css">
   /* Phones: animating filter:blur() across large blocks is expensive and shows
      up as flashing while scrolling. Use opacity + a short slide instead. */
@@ -637,6 +681,27 @@
 
 <div class="curtain" aria-hidden="true"></div>
 <div class="curtain-bar" aria-hidden="true"></div>
+
+<dialog class="introdlg" id="introModal" aria-label="Junkola: the one-minute film">
+  <div class="vpx-bg intro-bg" aria-hidden="true"><div class="flare flare-tr"></div><div class="flare flare-bl" style="opacity:.5"></div><div class="vpx-layer vpx-dots"><svg viewBox="0 0 1200 1600" preserveAspectRatio="xMidYMid slice" focusable="false" aria-hidden="true"><circle class="o" cx="54.7" cy="1164.7" r="3.8" style="--i:0"/><circle class="c" cx="188.0" cy="1461.5" r="3.8" style="--i:1"/><circle class="c" cx="517.6" cy="1374.9" r="3.2" style="--i:2"/><circle class="o" cx="722.0" cy="1025.5" r="4.6" style="--i:3"/><circle class="c" cx="74.2" cy="427.3" r="1.8" style="--i:4"/><circle class="o" cx="1121.6" cy="1096.6" r="4.6" style="--i:5"/><circle class="c" cx="939.8" cy="466.5" r="2.2" style="--i:6"/><circle class="o" cx="814.1" cy="652.4" r="1.8" style="--i:7"/><circle class="c" cx="361.3" cy="1133.6" r="2.2" style="--i:8"/><circle class="o" cx="861.0" cy="1031.4" r="3.2" style="--i:9"/><circle class="c" cx="668.1" cy="595.7" r="3.2" style="--i:10"/><circle class="c" cx="833.9" cy="1181.2" r="2.6" style="--i:11"/><circle class="o" cx="206.0" cy="1344.2" r="2.2" style="--i:12"/><circle class="o" cx="1000.6" cy="1320.0" r="3.2" style="--i:13"/><circle class="c" cx="983.5" cy="27.5" r="4.6" style="--i:14"/><circle class="c" cx="127.2" cy="1354.6" r="1.8" style="--i:15"/><circle class="c" cx="860.8" cy="836.6" r="4.6" style="--i:16"/><circle class="c" cx="526.6" cy="683.3" r="3.8" style="--i:17"/><circle class="o" cx="679.5" cy="494.1" r="3.8" style="--i:18"/><circle class="c" cx="1172.9" cy="457.3" r="4.6" style="--i:19"/><circle class="c" cx="807.9" cy="1369.0" r="1.8" style="--i:20"/><circle class="c" cx="1173.3" cy="831.3" r="1.8" style="--i:21"/><circle class="o" cx="632.1" cy="769.7" r="3.8" style="--i:22"/><circle class="c" cx="27.9" cy="826.4" r="3.8" style="--i:23"/><circle class="c" cx="860.2" cy="292.0" r="3.2" style="--i:24"/><circle class="c" cx="671.8" cy="242.2" r="2.2" style="--i:25"/><circle class="c" cx="1076.2" cy="1390.9" r="1.8" style="--i:26"/><circle class="c" cx="344.4" cy="1554.7" r="2.2" style="--i:27"/><circle class="c" cx="363.9" cy="120.3" r="1.8" style="--i:28"/><circle class="o" cx="1086.4" cy="1524.3" r="3.8" style="--i:29"/><circle class="c" cx="122.5" cy="638.1" r="2.2" style="--i:30"/><circle class="c" cx="1117.6" cy="304.0" r="3.2" style="--i:31"/><circle class="c" cx="502.1" cy="99.7" r="3.8" style="--i:32"/><circle class="c" cx="962.3" cy="315.4" r="3.8" style="--i:33"/><circle class="c" cx="1132.2" cy="121.4" r="1.8" style="--i:34"/><circle class="c" cx="256.3" cy="74.6" r="2.2" style="--i:35"/><circle class="o" cx="805.3" cy="1460.5" r="3.2" style="--i:36"/><circle class="c" cx="197.7" cy="470.3" r="2.6" style="--i:37"/><circle class="o" cx="83.4" cy="1511.6" r="2.2" style="--i:38"/><circle class="c" cx="227.5" cy="679.7" r="2.6" style="--i:39"/><circle class="c" cx="113.1" cy="220.8" r="2.6" style="--i:40"/><circle class="c" cx="657.3" cy="1543.2" r="2.6" style="--i:41"/><circle class="o" cx="856.1" cy="123.3" r="3.8" style="--i:42"/><circle class="o" cx="550.9" cy="1545.5" r="3.2" style="--i:43"/><circle class="c" cx="229.0" cy="273.6" r="3.2" style="--i:44"/><circle class="c" cx="102.5" cy="44.6" r="3.2" style="--i:45"/><circle class="o" cx="845.4" cy="431.0" r="1.8" style="--i:46"/><circle class="c" cx="1156.9" cy="1009.8" r="2.6" style="--i:47"/><circle class="c" cx="644.4" cy="1369.4" r="4.6" style="--i:48"/><circle class="c" cx="327.1" cy="1365.0" r="3.8" style="--i:49"/><circle class="c" cx="1165.5" cy="668.7" r="2.6" style="--i:50"/><circle class="c" cx="927.5" cy="1200.0" r="1.8" style="--i:51"/><circle class="c" cx="401.4" cy="974.8" r="2.6" style="--i:52"/><circle class="c" cx="546.2" cy="746.1" r="4.6" style="--i:53"/><circle class="o" cx="341.8" cy="283.7" r="4.6" style="--i:54"/><circle class="o" cx="570.5" cy="263.2" r="4.6" style="--i:55"/><circle class="c" cx="421.4" cy="495.6" r="2.2" style="--i:56"/><circle class="o" cx="1018.7" cy="621.1" r="1.8" style="--i:57"/><circle class="o" cx="411.6" cy="783.1" r="1.8" style="--i:58"/><circle class="c" cx="271.5" cy="823.3" r="2.6" style="--i:59"/><circle class="o" cx="515.9" cy="460.3" r="4.6" style="--i:60"/><circle class="o" cx="1019.0" cy="833.4" r="3.8" style="--i:61"/><circle class="c" cx="415.7" cy="610.6" r="3.2" style="--i:62"/><circle class="c" cx="257.4" cy="980.0" r="2.2" style="--i:63"/><circle class="c" cx="573.2" cy="1031.1" r="2.2" style="--i:64"/><circle class="c" cx="702.1" cy="60.2" r="1.8" style="--i:65"/><circle class="o" cx="502.9" cy="1188.5" r="2.2" style="--i:66"/><circle class="o" cx="992.4" cy="948.6" r="1.8" style="--i:67"/><circle class="o" cx="1018.7" cy="1558.3" r="2.6" style="--i:68"/><circle class="c" cx="240.2" cy="1104.2" r="2.2" style="--i:69"/><circle class="c" cx="94.1" cy="977.3" r="1.8" style="--i:70"/><circle class="c" cx="724.1" cy="1196.5" r="1.8" style="--i:71"/></svg></div><div class="vpx-layer vpx-grid"><svg focusable="false" aria-hidden="true"><defs><pattern id="introGrid-minor" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#F45209" stroke-width="1"/></pattern><pattern id="introGrid-major" width="256" height="256" patternUnits="userSpaceOnUse"><rect width="256" height="256" fill="url(#introGrid-minor)"/><path d="M256 0H0V256" fill="none" stroke="#F45209" stroke-width="2"/></pattern></defs><rect width="100%" height="100%" fill="url(#introGrid-major)"/></svg></div></div>
+  <div class="intro-stripe" aria-hidden="true"></div>
+  <div class="intro-head">
+    <img src="junkola-logo.webp" alt="Junkola" width="1280" height="725" decoding="async">
+    <button type="button" class="intro-close" id="introClose" aria-label="Close the film and enter the site">CLOSE &#10005;</button>
+  </div>
+  <div class="intro-body">
+    <div class="kicker">The one-minute version</div>
+    <div class="vid-frame intro-frame">
+      <div class="yt" data-yt="zW-DctKjS_k" data-title="Chaos in. Clarity out.">
+        <button type="button" class="yt-btn" aria-label="Play video: Chaos in. Clarity out." autofocus>
+          <img alt="" width="1280" height="720" decoding="async">
+          <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 2l14 8-14 8z"/></svg></span>
+          <span class="yt-cap" aria-hidden="true">Play video</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
 <canvas class="cursor-fx" aria-hidden="true"></canvas>
 
 <div class="nav" data-anim="drop"><div class="wrap">
@@ -1130,8 +1195,10 @@
   /* ---------- 2. hero entrance on load ---------- */
   var heroBits = document.querySelectorAll('.hero [data-anim], .nav[data-anim]');
   function fireHero(){
+    if (document.documentElement.classList.contains('intro-wait')) return;   /* the film is still open */
     Array.prototype.forEach.call(heroBits, function(el){ el.classList.add('is-in'); });
   }
+  window.__fireHero = fireHero;
   if (document.readyState === 'complete') { fireHero(); }
   else { window.addEventListener('load', fireHero); setTimeout(fireHero, 1600); }
 
@@ -1779,6 +1846,8 @@
     boxes.forEach(probe);
   }
 
+  document.addEventListener('yt:stop', function(){ boxes.forEach(restore); });
+
   function restore(box){
     if (!box.classList.contains('is-playing')) return;
     box.classList.remove('is-playing');
@@ -1809,5 +1878,26 @@
 })();
 </script>
 
+<script id="intro-js">
+/* Opens the intro film on load. Closing it (button or Esc) stops the video, then releases the page's own
+   load animation: the orange curtain sweep and the hero entrance. */
+(function(){
+  var root = document.documentElement, dlg = document.getElementById('introModal');
+  if (!root.classList.contains('intro-wait')) return;            /* intro not wanted for this visit */
+  var released = false;
+  function release(){
+    if (released) return; released = true;
+    document.dispatchEvent(new Event('yt:stop'));                /* silence the video */
+    document.body.style.overflow = '';
+    try { sessionStorage.setItem('jk-intro', '1'); } catch(e){}
+    root.classList.remove('intro-wait');                         /* curtain starts sweeping */
+    if (window.__fireHero) window.__fireHero();                  /* hero copy rises in with it */
+  }
+  if (!dlg || typeof dlg.showModal !== 'function') { release(); return; }
+  dlg.addEventListener('close', release);                        /* fires for the Close button and for Esc */
+  document.getElementById('introClose').addEventListener('click', function(){ dlg.close(); });
+  try { dlg.showModal(); document.body.style.overflow = 'hidden'; } catch(e){ release(); }
+})();
+</script>
 </body>
 </html>
