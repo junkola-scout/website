@@ -630,6 +630,15 @@ document.documentElement.className+=" js";
   .ctmodal #ct .ct-cols, #ct .ctmodal .ct-cols { padding-top:34px; }
   #ct .ctmodal .ct-close { margin-top:52px; }
   @media (max-width: 620px) { .ctmodal .mbody { padding:6px 18px 30px; } }
+  /* single-column grid tracks default to min-content, which let the form push past the modal edge on phones */
+  @media (max-width: 900px) { #ct .ct-cols { grid-template-columns:minmax(0,1fr); } }
+  .ctmodal .mbody { overflow-x:hidden; }
+  #ct .ct-cols > *, #ct .ct-panel, #ct .ct-field, #ct .ct-rangerow, #ct .ct-tiles { min-width:0; }
+  #ct .ct-panel input { max-width:100%; box-sizing:border-box; }
+  @media (max-width: 620px) {
+    #ct th, #ct td { padding:10px 6px; font-size:13px; }
+    #ct th { letter-spacing:1px; font-size:10.5px; }
+  }
 </style>
 <style id="video-css">
   /* ===== YouTube click-to-play embeds =====
