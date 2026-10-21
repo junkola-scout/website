@@ -551,6 +551,22 @@
   }
 ]
 </script>
+<style id="mobile-motion-css">
+  /* Phones: animating filter:blur() across large blocks is expensive and shows
+     up as flashing while scrolling. Use opacity + a short slide instead. */
+  @keyframes riseInM   { from { opacity:0; transform:translate3d(0,calc(26px * var(--dir,1)),0); } to { opacity:1; transform:none; } }
+  @keyframes zoomInM   { from { opacity:0; transform:scale(1.05); } to { opacity:1; transform:none; } }
+  @keyframes leaveOutM { from { opacity:1; transform:none; } to { opacity:0; transform:translate3d(0,calc(20px * var(--dir,1)),0); } }
+  @media (max-width: 760px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    html.js [data-anim].is-in { animation-name:riseInM; animation-duration:.6s; animation-delay:calc(var(--d,0s) * .5); }
+    html.js [data-anim="zoom"].is-in { animation-name:zoomInM; animation-duration:.8s; }
+    html.js [data-anim="wipe"].is-in { animation-name:wipeIn; animation-duration:.8s; }
+    html.js [data-anim="drop"].is-in { animation-name:dropIn; animation-duration:.6s; }
+    html.js [data-anim="fade"].is-in { animation-name:fadeIn; animation-duration:1.2s; }
+    html.js [data-anim].is-out { animation-name:leaveOutM; animation-duration:.35s; }
+    html.js [data-anim="wipe"].is-out { animation-name:wipeOut; }
+  }
+</style>
 <style id="ct-teaser-css">
   /* ===== Clutter Tax: headline teaser + "See the calculations" modal ===== */
   #ct .ct-teaser { margin-top:56px; padding-top:34px; border-top:6px solid;
@@ -1021,6 +1037,17 @@
     return (window.pageYOffset || doc.scrollTop) + window.innerHeight >= (doc.scrollHeight - 2);
   }
 
+  /* Hysteresis. An element enters when it crosses the band, but it only
+     "leaves" once it is clearly gone: fully below the screen (by SLOP px), or
+     above the top line. The entrance animation also starts the element ~50px
+     lower than its resting place and getBoundingClientRect() reports that
+     shifted position, so judging "leave" by the same line as "enter" made an
+     element that had just appeared look instantly out of bounds again -- it
+     replayed in/out/in on every few pixels of scroll (very visible on phones,
+     where the address bar and a resting thumb keep nudging the scroll). */
+  var SLOP = 140;       /* how far below the screen an element must be to reset */
+  var TOP_SLOP = 70;    /* how far back in from the top edge before it re-reveals (exit shifts it ~44px) */
+
   function setState(t, next, k){
     var el = t.el;
     if (next === 'in') {
@@ -1028,8 +1055,13 @@
       el.style.setProperty('--d', Math.min(k * 0.085, 0.75) + 's');
       el.classList.remove('is-out');
       el.classList.add('is-in');
+    } else if (next === 'below') {
+      /* already off-screen: reset silently so it can animate in again later */
+      el.classList.remove('is-in');
+      el.classList.remove('is-out');
     } else if (t.state === 'in') {
-      el.style.setProperty('--dir', next === 'above' ? '-1' : '1');
+      /* leaving through the top edge: this exit is visible, so animate it */
+      el.style.setProperty('--dir', '-1');
       el.classList.remove('is-in');
       el.classList.add('is-out');
     }
@@ -1041,12 +1073,19 @@
     var vh = window.innerHeight, topLine = vh * BAND_TOP, bottomLine = vh * BAND_BOTTOM;
     var bottomed = atPageBottom(), k = 0;
     for (var i = 0; i < tracked.length; i++) {
-      var t = tracked[i], r = t.el.getBoundingClientRect(), next;
-      if (r.bottom < topLine) next = 'above';
-      /* at the very bottom of the page nothing can scroll further, so anything
-         on screen counts as in -- otherwise the footer would never reveal */
-      else if (r.top > bottomLine && !(bottomed && r.top < vh)) next = 'below';
-      else next = 'in';
+      var t = tracked[i], r = t.el.getBoundingClientRect(), next = t.state;
+      if (t.state === 'in') {
+        if (r.top > vh + SLOP)                 next = 'below';   /* fully off the bottom */
+        else if (r.bottom < topLine)           next = 'above';   /* scrolled out the top */
+      } else if (t.state === 'above') {
+        if (r.top > vh + SLOP)                 next = 'below';
+        else if (r.top <= bottomLine && r.bottom > topLine + TOP_SLOP) next = 'in';  /* must clear the top line by TOP_SLOP */
+      } else { /* 'below' */
+        if (r.bottom < topLine)                next = 'above';
+        /* at the very bottom of the page nothing can scroll further, so anything
+           on screen counts as in -- otherwise the footer would never reveal */
+        else if (r.top <= bottomLine || (bottomed && r.top < vh)) next = 'in';
+      }
       if (next !== t.state) { setState(t, next, next === 'in' ? k++ : 0); }
     }
   }
