@@ -571,7 +571,9 @@
   .yt-btn { position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; background:#10182A; color:#FFFFFF;
     font:inherit; text-align:left; cursor:pointer; display:block; }
   .yt-btn img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
-    transition:transform .6s var(--eo); }
+    opacity:0; transition:transform .6s var(--eo), opacity .45s ease; }
+  .yt-btn img.is-ready { opacity:1; }
+  .yt.no-thumb .yt-btn { background:radial-gradient(ellipse 70% 90% at 28% 18%, rgba(244,82,9,.38) 0%, rgba(244,82,9,0) 70%), #10182A; }
   .yt-btn::after { content:""; position:absolute; inset:0; pointer-events:none;
     background:linear-gradient(180deg, rgba(16,24,42,.08) 0%, rgba(16,24,42,.58) 100%); }
   .yt-btn:hover img { transform:scale(1.03); }
@@ -631,7 +633,7 @@
   <div class="vid-frame">
     <div class="yt" data-yt="zW-DctKjS_k" data-title="Chaos in. Clarity out.">
       <button type="button" class="yt-btn" aria-label="Play video: Chaos in. Clarity out.">
-        <img src="https://i.ytimg.com/vi/zW-DctKjS_k/maxresdefault.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" onerror="if(this.dataset.f){this.style.display='none'}else{this.dataset.f=1;this.src='https://i.ytimg.com/vi/zW-DctKjS_k/hqdefault.jpg'}">
+        <img alt="" width="1280" height="720" decoding="async">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 2l14 8-14 8z"/></svg></span>
         <span class="yt-cap" aria-hidden="true">Play video</span>
       </button>
@@ -840,7 +842,7 @@
     <div class="vid-frame">
       <div class="yt" data-yt="pxHcWRj2tn4" data-title="Fewer Meetings. More Progress.">
       <button type="button" class="yt-btn" aria-label="Play video: Fewer Meetings. More Progress.">
-        <img src="https://i.ytimg.com/vi/pxHcWRj2tn4/maxresdefault.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" onerror="if(this.dataset.f){this.style.display='none'}else{this.dataset.f=1;this.src='https://i.ytimg.com/vi/pxHcWRj2tn4/hqdefault.jpg'}">
+        <img alt="" width="1280" height="720" decoding="async">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 2l14 8-14 8z"/></svg></span>
         <span class="yt-cap" aria-hidden="true">Play video</span>
       </button>
@@ -896,7 +898,7 @@
     <div class="vid-frame">
       <div class="yt" data-yt="CqlyJO-P0hw" data-title="He Took a Week Off and Didn't Miss a Beat">
       <button type="button" class="yt-btn" aria-label="Play video: He Took a Week Off and Didn&rsquo;t Miss a Beat">
-        <img src="https://i.ytimg.com/vi/CqlyJO-P0hw/maxresdefault.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" onerror="if(this.dataset.f){this.style.display='none'}else{this.dataset.f=1;this.src='https://i.ytimg.com/vi/CqlyJO-P0hw/hqdefault.jpg'}">
+        <img alt="" width="1280" height="720" decoding="async">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 2l14 8-14 8z"/></svg></span>
         <span class="yt-cap" aria-hidden="true">Play video</span>
       </button>
@@ -1614,18 +1616,59 @@
 
 <script id="video-embed-js">
 /* Click-to-play YouTube embeds. The iframe (privacy-enhanced youtube-nocookie
-   embed code) is created on click, so no YouTube requests happen on page load.
-   Only one video plays at a time: starting one restores the others to posters. */
+   embed code) is created on click, so the player itself never loads until a
+   visitor asks for it. Only one video plays at a time.
+
+   Posters come straight from YouTube. We try the sharpest thumbnail first and
+   step down. YouTube answers a missing thumbnail with a 120px-wide grey
+   placeholder (not an error), so each candidate is checked by its real width;
+   if none is usable the box falls back to a branded navy poster. */
 (function(){
   var boxes = Array.prototype.slice.call(document.querySelectorAll('.yt[data-yt]'));
   if (!boxes.length) return;
 
+  var THUMBS = ['maxresdefault', 'hq720', 'sddefault', 'hqdefault'];
+  var MIN_WIDTH = 400;   /* real thumbnails are 480px+; the placeholder is 120px */
+
   boxes.forEach(function(box){ box.__poster = box.innerHTML; });
+
+  function showThumb(box){
+    var img = box.querySelector('.yt-btn img');
+    if (!img || !box.__thumb) return;
+    img.onload = function(){ img.classList.add('is-ready'); };
+    img.src = box.__thumb;
+    if (img.complete) img.classList.add('is-ready');
+  }
+
+  function probe(box){
+    var id = box.getAttribute('data-yt'), i = 0;
+    (function next(){
+      if (i >= THUMBS.length) { box.__thumb = ''; box.classList.add('no-thumb'); return; }
+      var url = 'https://i.ytimg.com/vi/' + id + '/' + THUMBS[i++] + '.jpg';
+      var im = new Image();
+      im.onload  = function(){ if (im.naturalWidth >= MIN_WIDTH) { box.__thumb = url; showThumb(box); } else { next(); } };
+      im.onerror = next;
+      im.src = url;
+    })();
+  }
+
+  /* only fetch posters for videos that are near the screen */
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { io.unobserve(en.target); probe(en.target); }
+      });
+    }, { rootMargin: '600px 0px' });
+    boxes.forEach(function(box){ io.observe(box); });
+  } else {
+    boxes.forEach(probe);
+  }
 
   function restore(box){
     if (!box.classList.contains('is-playing')) return;
     box.classList.remove('is-playing');
     box.innerHTML = box.__poster;
+    showThumb(box);
   }
 
   function play(box){
