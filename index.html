@@ -551,6 +551,26 @@
   }
 ]
 </script>
+<style id="ct-teaser-css">
+  /* ===== Clutter Tax: headline teaser + "See the calculations" modal ===== */
+  #ct .ct-teaser { margin-top:56px; padding-top:34px; border-top:6px solid;
+    border-image:linear-gradient(90deg, var(--jk-orange), var(--jk-yellow)) 1; }
+  #ct .ct-eyebrow { font-weight:800; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:#5A6272; }
+  #ct .ct-hero-figure { font-size:clamp(76px, 17vw, 196px); font-weight:800; line-height:.9; letter-spacing:-.045em;
+    color:#F45209; font-variant-numeric:tabular-nums; margin-top:14px; }
+  #ct .ct-teaser .ct-tiles { margin-top:44px; border-top:3px solid #10182A; }
+  #ct .ct-teaser .ct-tile { border-bottom:none; }
+  #ct .ct-teaser-actions { margin-top:34px; display:flex; align-items:center; gap:14px 26px; flex-wrap:wrap; }
+  #ct .ct-teaser-actions .btn { margin:0; cursor:pointer; border:0; font-family:inherit; }
+  #ct .ct-teaser-note { font-size:14px; color:#5A6272; max-width:46ch; line-height:1.5; }
+  @media (max-width: 760px) { #ct .ct-teaser { margin-top:40px; } #ct .ct-teaser-actions .btn { width:100%; } }
+
+  .painmodal.ctmodal { width:min(1180px, calc(100vw - 40px)); max-height:min(92vh, 1100px); }
+  .ctmodal .mbody { padding:8px 34px 44px; max-height:calc(min(92vh,1100px) - 92px); }
+  .ctmodal #ct .ct-cols, #ct .ctmodal .ct-cols { padding-top:34px; }
+  #ct .ctmodal .ct-close { margin-top:52px; }
+  @media (max-width: 620px) { .ctmodal .mbody { padding:6px 18px 30px; } }
+</style>
 <style id="video-css">
   /* ===== YouTube click-to-play embeds =====
      Nothing from YouTube loads until a visitor clicks play: the poster is a
@@ -710,125 +730,148 @@
       <p class="lead">Your company already produced every answer it needs. It said them out loud &mdash; in email, on calls, in the hallway &mdash; and then threw them away. <b>This is the bill for buying them back.</b></p>
     </div>
 
-    <!-- data-anim + is-in opts this out of the scroll-reveal sweep: a tool must stay visible -->
-    <div class="ct-cols is-in" data-anim>
-<!-- ============ INPUTS ============ -->
-        <form class="ct-panel" id="ctPanel" autocomplete="off">
-          <h2>Your company</h2>
-          <p class="ct-hint">Pre-filled with a round 100-person company at $100k loaded. These are example figures &mdash; replace them with yours.</p>
-
-          <div class="ct-fields">
-            <div class="ct-field">
-              <label for="headcount">Employees</label>
-              <input type="number" id="headcount" min="10" max="20000" step="10" value="100">
-            </div>
-
-            <div class="ct-field">
-              <label for="salary">Average fully-loaded salary ($)
-                <span class="ct-sub">Salary plus benefits, taxes and overhead</span>
-              </label>
-              <input type="number" id="salary" min="30000" max="500000" step="5000" value="100000">
-            </div>
-
-            <div class="ct-field">
-              <div class="ct-rangerow">
-                <label for="syncHours" style="margin:0">Hours per person per week<br>in recurring status meetings</label>
-                <span class="ct-val" id="syncHoursV">4.0</span>
-              </div>
-              <input type="range" id="syncHours" min="0" max="15" step="0.5" value="4">
-            </div>
-
-            <div class="ct-field">
-              <div class="ct-rangerow">
-                <label for="statusShare" style="margin:0">Share of that time spent<br>conveying what already happened</label>
-                <span class="ct-val" id="statusShareV">40%</span>
-              </div>
-              <input type="range" id="statusShare" min="0" max="100" step="5" value="40">
-            </div>
-          </div>
-
-          <details class="ct-assump">
-            <summary>Assumptions</summary>
-            <p class="ct-note">These are starting assumptions, not research findings. They are deliberately conservative. Change any of them &mdash; the number updates, and the arithmetic stays visible.</p>
-
-            <div class="ct-arow"><span>Working weeks per year</span><input type="number" id="weeks" min="1" max="52" step="1" value="46"></div>
-            <div class="ct-arow"><span>Decisions re-opened per 100 people, per month</span><input type="number" id="relitPer100" min="0" max="50" step="1" value="3"></div>
-            <div class="ct-arow"><span>People pulled into each re-opened decision</span><input type="number" id="relitPeople" min="1" max="30" step="1" value="4"></div>
-            <div class="ct-arow"><span>Hours each re-opened decision consumes</span><input type="number" id="relitHours" min="0" max="40" step="0.5" value="2"></div>
-            <div class="ct-arow"><span>Commitments dropped per 100 people, per month</span><input type="number" id="droppedPer100" min="0" max="100" step="1" value="8"></div>
-            <div class="ct-arow"><span>Hours to catch and recover each one</span><input type="number" id="droppedHours" min="0" max="40" step="0.5" value="3"></div>
-            <div class="ct-arow"><span>Annual voluntary turnover (%)</span><input type="number" id="turnover" min="0" max="60" step="1" value="13"></div>
-            <div class="ct-arow"><span>Weeks a replacement spends rebuilding lost context</span><input type="number" id="rampWeeks" min="0" max="52" step="1" value="4"></div>
-            <div class="ct-arow"><span>Productivity lost during those weeks (%)</span><input type="number" id="rampLoss" min="0" max="100" step="5" value="50"></div>
-
-            <button type="button" class="ct-reset" id="ctReset">Reset to defaults</button>
-          </details>
-        </form>
-
-        <!-- ============ RESULTS ============ -->
-        <main>
-          <div class="ct-headline">
-            <div class="kicker">Annual clutter tax</div>
-            <div class="ct-figure" id="ctTotal">$431,538</div>
-            <p class="ct-figure-sub">That is <b id="ctFte">4.3</b> full-time people whose entire year goes to re-synchronizing a company that has no shared record of itself.</p>
-          </div>
-
-          <div class="ct-tiles">
-            <div class="ct-tile">
-              <div class="ct-k" id="ctWeekly">$9,381</div>
-              <div class="ct-l">Per week, while nothing changes</div>
-            </div>
-            <div class="ct-tile">
-              <div class="ct-k" id="ctHours">8,976</div>
-              <div class="ct-l">Person-hours per year</div>
-            </div>
-            <div class="ct-tile">
-              <div class="ct-k" id="ctPerhead">$4,315</div>
-              <div class="ct-l">Per employee, per year</div>
-            </div>
-          </div>
-
-          <div class="ct-block">
-            <h3>Where it goes</h3>
-            <p class="ct-blurb">Four line items. The first is the one everybody already feels; the other three are the ones that never show up on a calendar.</p>
-            <div class="ct-chart" id="ctChart"></div>
-            <div class="ct-axis"><span>$0</span><span id="ctAxisMax">$353,846</span></div>
-          </div>
-
-          <div class="ct-block">
-            <h3>The arithmetic</h3>
-            <p class="ct-blurb">Nothing here is hidden. Every figure below is your inputs multiplied out at a loaded rate of <b id="ctRate">$48.08</b> per hour.</p>
-            <div class="ct-tablewrap">
-              <table>
-                <thead>
-                  <tr><th scope="col">Line item</th><th scope="col">Hours / yr</th><th scope="col">Cost / yr</th><th scope="col">Share</th></tr>
-                </thead>
-                <tbody id="ctTbody"></tbody>
-                <tfoot>
-                  <tr><td>Total</td><td id="ctTHours"></td><td id="ctTCost"></td><td>100%</td></tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-
-          <div class="ct-block">
-            <h3>How to read this</h3>
-            <p class="ct-fine">This is a model, not a measurement. It multiplies out assumptions you can see and change; it does not observe your company. Treat the total as the size of the question, not the answer &mdash; the honest version of this number comes from a pilot on your own communication.</p>
-            <p class="ct-fine"><b>Deliberately excluded:</b> decisions delayed waiting for information, opportunity cost of work not started, and customer-facing consequences of internal blind spots. All real, none of them defensible to estimate from headcount.</p>
-          </div>
-        </main>
-    </div>
-
-    <div class="ct-close">
-      <p class="ct-close-line">Every week you wait costs <span id="ctWeeklyAsk">$9,381</span>.</p>
-      <p class="ct-close-body">Junkola captures the communication you already have &mdash; email, chat, Zoom, Meet, and the meetings that never get written down &mdash; and turns it into tracked, assigned work. Status stops being something people report and becomes a residue of work already happening.</p>
-      <div class="ct-actions">
-        <a class="btn" id="ctMailto" href="mailto:hello@junkola.ai">SEND THESE NUMBERS TO US</a>
-        <button class="btn ghost" type="button" id="ctCopy">COPY THE BREAKDOWN</button>
+    <!-- headline teaser: the big number, three small stats, one button -->
+    <div class="ct-teaser">
+      <p class="ct-eyebrow"><span id="ctTeaserEmp">10</span> employees &middot; annual clutter tax</p>
+      <div class="ct-hero-figure" id="ctTeaserTotal">$43,154</div>
+      <div class="ct-tiles">
+        <div class="ct-tile"><div class="ct-k" id="ctTeaserWeekly">$938</div><div class="ct-l">Per week, while nothing changes</div></div>
+        <div class="ct-tile"><div class="ct-k" id="ctTeaserHours">898</div><div class="ct-l">Person-hours per year</div></div>
+        <div class="ct-tile"><div class="ct-k" id="ctTeaserPerhead">$4,315</div><div class="ct-l">Per employee, per year</div></div>
       </div>
-      <p class="ct-copied" id="ctCopied" role="status" aria-live="polite"></p>
-      <p class="ct-privacy">Nothing you type here is stored, sent, or tracked &mdash; the whole calculation runs in your browser. The buttons above just package your own numbers into an email or your clipboard.</p>
+      <div class="ct-teaser-actions">
+        <button type="button" class="btn" id="ctOpen" aria-haspopup="dialog">SEE THE CALCULATIONS</button>
+        <p class="ct-teaser-note">Example figures for a 10-person company. Open the calculator and enter yours.</p>
+      </div>
     </div>
+
+    <dialog class="painmodal ctmodal" id="ctModal" aria-labelledby="ctModalTitle">
+      <div class="mhead">
+        <h3 id="ctModalTitle"><span class="sub">The Clutter Tax</span>The calculations</h3>
+        <button type="button" class="mclose" id="ctModalClose" aria-label="Close">CLOSE &#10005;</button>
+      </div>
+      <div class="mbody">
+        <div class="ct-cols">
+    <!-- ============ INPUTS ============ -->
+            <form class="ct-panel" id="ctPanel" autocomplete="off">
+              <h2>Your company</h2>
+              <p class="ct-hint">Pre-filled with a 10-person company at $100k loaded. These are example figures &mdash; replace them with yours.</p>
+
+              <div class="ct-fields">
+                <div class="ct-field">
+                  <label for="headcount">Employees</label>
+                  <input type="number" id="headcount" min="10" max="20000" step="10" value="10">
+                </div>
+
+                <div class="ct-field">
+                  <label for="salary">Average fully-loaded salary ($)
+                    <span class="ct-sub">Salary plus benefits, taxes and overhead</span>
+                  </label>
+                  <input type="number" id="salary" min="30000" max="500000" step="5000" value="100000">
+                </div>
+
+                <div class="ct-field">
+                  <div class="ct-rangerow">
+                    <label for="syncHours" style="margin:0">Hours per person per week<br>in recurring status meetings</label>
+                    <span class="ct-val" id="syncHoursV">4.0</span>
+                  </div>
+                  <input type="range" id="syncHours" min="0" max="15" step="0.5" value="4">
+                </div>
+
+                <div class="ct-field">
+                  <div class="ct-rangerow">
+                    <label for="statusShare" style="margin:0">Share of that time spent<br>conveying what already happened</label>
+                    <span class="ct-val" id="statusShareV">40%</span>
+                  </div>
+                  <input type="range" id="statusShare" min="0" max="100" step="5" value="40">
+                </div>
+              </div>
+
+              <details class="ct-assump">
+                <summary>Assumptions</summary>
+                <p class="ct-note">These are starting assumptions, not research findings. They are deliberately conservative. Change any of them &mdash; the number updates, and the arithmetic stays visible.</p>
+
+                <div class="ct-arow"><span>Working weeks per year</span><input type="number" id="weeks" min="1" max="52" step="1" value="46"></div>
+                <div class="ct-arow"><span>Decisions re-opened per 100 people, per month</span><input type="number" id="relitPer100" min="0" max="50" step="1" value="3"></div>
+                <div class="ct-arow"><span>People pulled into each re-opened decision</span><input type="number" id="relitPeople" min="1" max="30" step="1" value="4"></div>
+                <div class="ct-arow"><span>Hours each re-opened decision consumes</span><input type="number" id="relitHours" min="0" max="40" step="0.5" value="2"></div>
+                <div class="ct-arow"><span>Commitments dropped per 100 people, per month</span><input type="number" id="droppedPer100" min="0" max="100" step="1" value="8"></div>
+                <div class="ct-arow"><span>Hours to catch and recover each one</span><input type="number" id="droppedHours" min="0" max="40" step="0.5" value="3"></div>
+                <div class="ct-arow"><span>Annual voluntary turnover (%)</span><input type="number" id="turnover" min="0" max="60" step="1" value="13"></div>
+                <div class="ct-arow"><span>Weeks a replacement spends rebuilding lost context</span><input type="number" id="rampWeeks" min="0" max="52" step="1" value="4"></div>
+                <div class="ct-arow"><span>Productivity lost during those weeks (%)</span><input type="number" id="rampLoss" min="0" max="100" step="5" value="50"></div>
+
+                <button type="button" class="ct-reset" id="ctReset">Reset to defaults</button>
+              </details>
+            </form>
+
+            <!-- ============ RESULTS ============ -->
+            <main>
+              <div class="ct-headline">
+                <div class="kicker">Annual clutter tax</div>
+                <div class="ct-figure" id="ctTotal">$43,154</div>
+                <p class="ct-figure-sub">That is <b id="ctFte">0.4</b> full-time equivalents spent re-synchronizing a company that has no shared record of itself.</p>
+              </div>
+
+              <div class="ct-tiles">
+                <div class="ct-tile">
+                  <div class="ct-k" id="ctWeekly">$938</div>
+                  <div class="ct-l">Per week, while nothing changes</div>
+                </div>
+                <div class="ct-tile">
+                  <div class="ct-k" id="ctHours">898</div>
+                  <div class="ct-l">Person-hours per year</div>
+                </div>
+                <div class="ct-tile">
+                  <div class="ct-k" id="ctPerhead">$4,315</div>
+                  <div class="ct-l">Per employee, per year</div>
+                </div>
+              </div>
+
+              <div class="ct-block">
+                <h3>Where it goes</h3>
+                <p class="ct-blurb">Four line items. The first is the one everybody already feels; the other three are the ones that never show up on a calendar.</p>
+                <div class="ct-chart" id="ctChart"></div>
+                <div class="ct-axis"><span>$0</span><span id="ctAxisMax">$35,385</span></div>
+              </div>
+
+              <div class="ct-block">
+                <h3>The arithmetic</h3>
+                <p class="ct-blurb">Nothing here is hidden. Every figure below is your inputs multiplied out at a loaded rate of <b id="ctRate">$48.08</b> per hour.</p>
+                <div class="ct-tablewrap">
+                  <table>
+                    <thead>
+                      <tr><th scope="col">Line item</th><th scope="col">Hours / yr</th><th scope="col">Cost / yr</th><th scope="col">Share</th></tr>
+                    </thead>
+                    <tbody id="ctTbody"></tbody>
+                    <tfoot>
+                      <tr><td>Total</td><td id="ctTHours"></td><td id="ctTCost"></td><td>100%</td></tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <div class="ct-block">
+                <h3>How to read this</h3>
+                <p class="ct-fine">This is a model, not a measurement. It multiplies out assumptions you can see and change; it does not observe your company. Treat the total as the size of the question, not the answer &mdash; the honest version of this number comes from a pilot on your own communication.</p>
+                <p class="ct-fine"><b>Deliberately excluded:</b> decisions delayed waiting for information, opportunity cost of work not started, and customer-facing consequences of internal blind spots. All real, none of them defensible to estimate from headcount.</p>
+              </div>
+            </main>
+        </div>
+
+
+        <div class="ct-close">
+          <p class="ct-close-line">Every week you wait costs <span id="ctWeeklyAsk">$938</span>.</p>
+          <p class="ct-close-body">Junkola captures the communication you already have &mdash; email, chat, Zoom, Meet, and the meetings that never get written down &mdash; and turns it into tracked, assigned work. Status stops being something people report and becomes a residue of work already happening.</p>
+          <div class="ct-actions">
+            <a class="btn" id="ctMailto" href="mailto:hello@junkola.ai">SEND THESE NUMBERS TO US</a>
+            <button class="btn ghost" type="button" id="ctCopy">COPY THE BREAKDOWN</button>
+          </div>
+          <p class="ct-copied" id="ctCopied" role="status" aria-live="polite"></p>
+          <p class="ct-privacy">Nothing you type here is stored, sent, or tracked &mdash; the whole calculation runs in your browser. The buttons above just package your own numbers into an email or your clipboard.</p>
+        </div>
+      </div>
+    </dialog>
   </div>
 </section>
 
@@ -1461,7 +1504,7 @@
 
   /* ---------- the calculator ---------- */
   var DEFAULTS = {
-    headcount:100, salary:100000, syncHours:4, statusShare:40,
+    headcount:10, salary:100000, syncHours:4, statusShare:40,
     weeks:46, relitPer100:3, relitPeople:4, relitHours:2,
     droppedPer100:8, droppedHours:3, turnover:13, rampWeeks:4, rampLoss:50
   };
@@ -1525,6 +1568,12 @@
 
     $("syncHoursV").textContent = num1.format(s.syncHours);
     $("statusShareV").textContent = s.statusShare + "%";
+
+    $("ctTeaserEmp").textContent     = num0.format(s.headcount);
+    $("ctTeaserTotal").textContent   = usd0.format(r.totalCost);
+    $("ctTeaserWeekly").textContent  = usd0.format(r.weekly);
+    $("ctTeaserHours").textContent   = num0.format(r.totalHrs);
+    $("ctTeaserPerhead").textContent = usd0.format(r.perHead);
 
     $("ctTotal").textContent     = usd0.format(r.totalCost);
     $("ctFte").textContent       = num1.format(r.fte);
@@ -1611,6 +1660,33 @@
   });
 
   render();
+
+  /* ---------- "See the calculations" modal ---------- */
+  (function(){
+    var btn = $("ctOpen"), modal = $("ctModal"), closeBtn = $("ctModalClose");
+    if (!btn || !modal) return;
+    var native = typeof modal.showModal === "function";
+    function open(){
+      if (native) { modal.showModal(); }
+      else { modal.setAttribute("open",""); modal.style.position="fixed"; modal.style.top="4vh"; modal.style.zIndex="9999"; }
+      document.body.style.overflow = "hidden";
+      if (closeBtn) { closeBtn.focus(); }
+    }
+    function close(){
+      if (native && modal.open) { modal.close(); } else { modal.removeAttribute("open"); }
+      document.body.style.overflow = "";
+      btn.focus();
+    }
+    btn.addEventListener("click", open);
+    if (closeBtn) { closeBtn.addEventListener("click", close); }
+    modal.addEventListener("close", function(){ document.body.style.overflow = ""; });
+    modal.addEventListener("click", function(e){ if (e.target === modal) { close(); } });
+    if (!native) {
+      document.addEventListener("keydown", function(e){
+        if (e.key === "Escape" && modal.hasAttribute("open")) { close(); }
+      });
+    }
+  })();
 })();
 </script>
 
